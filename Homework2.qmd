@@ -1,0 +1,148 @@
+---
+title: "Basics of R Programming"
+format: html
+editor: visual
+author: Patrick Seebold
+---
+
+In this homework, I will use base R to complete some basic problems. These will showcase different ways of handling R without using fancy packages.
+
+# Task 1: Basic Vector Practice
+
+We will create two vectors that represent blood pressure pre and post treatment of a new medical intervention.
+
+```{r}
+# create the pre-test vector
+pre = c(120, 151, 125, 126, 115, 132, 132, 129, 134, 139, 127, 122, 127, 135, 133, 128, 147, 138, 140, 132)
+
+# create the post-test vector
+post = c(127, 145, 135, 122, 115, 122, 123, 126, 126, 129, 132, 146, 120, 114, 121, 120, 128, 120, 133, 115)
+
+# create the names for our pre and post vectors
+names = paste("Subject", 1:20, sep = "_")
+
+# assign the names for our vectors
+names(pre) = names
+names(post) = names
+```
+
+Let's visually confirm that the names have been assigned as we want them.
+
+```{r}
+print(pre)
+```
+
+```{r}
+print(post)
+```
+
+These look good! Now we can continue with the tasks and calculate the change in blood pressure.
+
+```{r}
+change = pre - post
+change # we can view these changes for each subject
+```
+
+Now, we calculate the average blood decrease by taking the mean of our change variable.
+
+```{r}
+mean(change)
+```
+
+We see that on average, the blood pressure difference was 5.65, indicating that the blood pressure dropped on average. Next, let's see which patients saw a decrease in blood pressure. Note that decreases in blood pressure show up as positive values here.
+
+```{r}
+which(change > 0) # grab all subjects with positive change value
+```
+
+Next, we will subset the change vector so we only see those patients who saw a decrease in blood pressure. We'll do this with a Boolean.
+
+```{r}
+positive_change = change[change > 0] # grab the patients who have a positive change in blood pressure
+positive_change # we love to see positive changes!
+```
+
+Finally, let's grab the average decrease in blood pressure for this subpopulation.
+
+```{r}
+mean(positive_change)
+```
+
+This is larger than we saw earlier, which makes sense since we dropped the patients with negative values!
+
+# Task 2: Data Frame Basics
+
+Let's start by making a data frame of the patient, pre, post, and change vectors we made in Task 1.
+
+```{r}
+df = data.frame(names, pre, post, change)
+df # let's see it so we can visualize what we 
+```
+
+Now lets return only rows where the change in bp is negative.
+
+```{r}
+subset(df,df$change < 0) # we'll use the subset command for this
+```
+
+Now, lets add a column with TRUE for people with bp \< 120 and FALSE otherwise.
+
+```{r}
+low = post < 120 # we can assign the Boolean with this
+df$low_bp = low # add to the df
+
+knitr::kable(df) # now we print it out nice!
+```
+
+# Task 3: Lists and Lists
+
+We now will add in the placebo group to the equation!
+
+```{r}
+# first make the pre and post as vectors
+pre2 = c(138, 135, 147, 117, 152, 134, 114, 121, 131, 130)
+post2 = c(105, 136, 123, 130, 134, 143, 135, 139, 120, 124)
+
+# create the names for our pre and post vectors
+names2 = paste("Subject", 1:10, sep = "_")
+
+# assign the names for our vectors
+names(pre2) = names2
+names(post2) = names2
+
+# calculate the difference for the placebo group
+change2 = pre2 - post2
+
+# now create a data frame like the first one
+df2 = data.frame(names2, pre2, post2, change2)
+
+# add the TRUE/FALSE column for low bp scores
+low2 = post2 < 120 # we can assign the Boolean with this
+df2$low_bp = low2 # add to the placebo df
+
+knitr::kable(df2) # visualize to make sure all went well
+```
+
+Now we place both of these data frames in a single list for easy storage.
+
+```{r}
+# create a list with treatment and placebo elements
+list = list(treatment = df, placebo = df2)
+
+# Now let's demonstrate the three ways to access the first element of our list
+list$treatment # Method 1: use the $ method with the name of our first element
+list[1] # Method 2: use brackets and call first index
+list[[1]] # Method 3: use double brackets
+```
+
+Finally, let's demonstrate how we can access a column with a data frame housed within our list, using only one line of code.
+
+```{r}
+# first we call the placebo entry, then we index the second column, which we know if the pre_bp values
+list$placebo[2]
+
+# if we want the values of this column as a vector, we could alternatively use the $ method twice as follows
+list$placebo$pre2
+```
+
+That wraps up this homework. More exciting R work in a future near you!
